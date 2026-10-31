@@ -1244,7 +1244,7 @@ input[type="checkbox"]:checked + .m3-switch::after {
         <label class="m3-switch-label">
           <input type="checkbox" id="allowDownloadToggle" style="display:none">
           <span class="m3-switch"></span>
-          <span id="allowDownloadLabelText">Quero permitir que o usuário baixe</span>
+          <span id="allowDownloadLabelText">Permitir que o usuário baixe a mídia enviada</span>
         </label>
         <div class="recording-indicator" id="recordingIndicator">
           <span class="material-symbols-rounded">mic</span>
@@ -1423,10 +1423,10 @@ input[type="checkbox"]:checked + .m3-switch::after {
 
   function updateDownloadSwitchUI() {
     if (allowDownloadToggle.checked) {
-      allowDownloadLabelText.textContent = 'Download liberado somente para o próximo anexo';
+      allowDownloadLabelText.textContent = 'Download liberado somente para o próximo arquivo';
       allowDownloadLabelText.style.color = '#FF8559';
     } else {
-      allowDownloadLabelText.textContent = 'Permitir download do próximo anexo (Desativado)';
+      allowDownloadLabelText.textContent = 'Permitir que o usuário baixe o arquivo enviado';
       allowDownloadLabelText.style.color = 'var(--m3-text)';
     }
   }
