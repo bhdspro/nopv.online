@@ -189,6 +189,7 @@ html, body {
   justify-content: center;
   cursor: pointer;
   transition: transform 0.14s cubic-bezier(0.2, 0, 0, 1), background 0.14s ease;
+  touch-action: manipulation;
 }
 
 .icon-btn:active {
@@ -238,6 +239,8 @@ html, body {
   font-size: 14px;
   width: 100%;
   font-family: inherit;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .online-counter-bar {
@@ -271,6 +274,7 @@ html, body {
   cursor: pointer;
   transition: background 0.16s ease, transform 0.12s ease;
   border: 1px solid transparent;
+  touch-action: manipulation;
 }
 
 .user-card:hover {
@@ -767,6 +771,8 @@ input[type="checkbox"]:checked + .m3-switch::after {
   color: var(--m3-text);
   font-size: 15px;
   font-family: inherit;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .recording-indicator {
@@ -792,6 +798,7 @@ input[type="checkbox"]:checked + .m3-switch::after {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overflow-y: auto;
 }
 
 .modal-backdrop.hidden {
@@ -810,6 +817,7 @@ input[type="checkbox"]:checked + .m3-switch::after {
   flex-direction: column;
   gap: 18px;
   text-align: center;
+  margin: auto;
 }
 
 .dialog-icon {
@@ -861,6 +869,8 @@ input[type="checkbox"]:checked + .m3-switch::after {
   font-weight: 700;
   font-family: inherit;
   letter-spacing: 0.3px;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .nick-feedback {
@@ -885,6 +895,7 @@ input[type="checkbox"]:checked + .m3-switch::after {
   gap: 8px;
   box-shadow: 0 10px 26px rgba(255, 64, 0, 0.38);
   transition: transform 0.14s ease, opacity 0.14s ease;
+  touch-action: manipulation;
 }
 
 .m3-btn-full:disabled {
@@ -1066,7 +1077,7 @@ input[type="checkbox"]:checked + .m3-switch::after {
       <input type="text" id="nickModalInput" placeholder="seu_usuario" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20">
     </div>
     <div class="nick-feedback" id="nickFeedbackText" style="color:var(--m3-text-muted)">Digite pelo menos 3 caracteres</div>
-    <button class="m3-btn-full" id="enterSystemBtn" disabled>
+    <button type="button" class="m3-btn-full" id="enterSystemBtn" disabled>
       <span class="material-symbols-rounded">login</span>
       <span>ENTRAR AGORA</span>
     </button>
@@ -1081,18 +1092,30 @@ input[type="checkbox"]:checked + .m3-switch::after {
     ? 'ws://127.0.0.1:8787/ws'
     : 'wss://ws.nopv.online/ws';
 
+  const BACKUP_WSS_RELAY = 'wss://broker.emqx.io:8084/mqtt';
+  const BACKUP_TOPIC = 'nopv/online/v2/ram_tunnel';
   const NEWS_REDIRECT_URL = 'https://news.google.com/?hl=pt-BR&gl=BR&ceid=BR:pt-419';
   const MESSAGE_TTL_MS = 60000;
   const CONTACT_INACTIVITY_MS = 60000;
+  const IS_TOUCH_DEVICE = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
   let ws = null;
+  let mqttWs = null;
+  let mqttReady = false;
+  let mqttPingTimer = null;
   let localBroadcast = null;
   let myNick = '';
+  let mySessionId = Math.random().toString(36).slice(2, 12);
+  let myJoinedAt = 0;
+  let enteredTimestamp = 0;
+  let isEntering = false;
+  let isPickingFile = false;
   let myKeyPair = null;
   let myPublicKeyJwk = null;
   let onlineUsers = new Map();
   let sharedSecrets = new Map();
   let conversations = new Map();
+  let seenPacketIds = new Set();
   let activePeer = null;
   let contactExpireAt = 0;
   let mediaRecorder = null;
@@ -1102,7 +1125,7 @@ input[type="checkbox"]:checked + .m3-switch::after {
   let recordTimerInterval = null;
   let lastHeaderTap = 0;
   let lastEscPress = 0;
-  let typingTimeout = null;
+  let typingTimeout = 0;
   let isDestroying = false;
 
   const privacyCurtain = document.getElementById('privacyCurtain');
@@ -1137,6 +1160,13 @@ input[type="checkbox"]:checked + .m3-switch::after {
   const sendMsgBtn = document.getElementById('sendMsgBtn');
   const systemToast = document.getElementById('systemToast');
 
+  function makeRandomId() {
+    if (window.crypto && window.crypto.randomUUID) {
+      return window.crypto.randomUUID();
+    }
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
+
   function lockHistoryStack() {
     try {
       window.history.replaceState({ nopvTrap: true }, '', window.location.href);
@@ -1158,7 +1188,7 @@ input[type="checkbox"]:checked + .m3-switch::after {
   }
 
   function sanitizeNickname(raw) {
-    return raw
+    return String(raw || '')
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-zA-Z0-9_]/g, '')
@@ -1167,17 +1197,25 @@ input[type="checkbox"]:checked + .m3-switch::after {
   }
 
   async function initCryptoIdentity() {
-    myKeyPair = await window.crypto.subtle.generateKey(
-      { name: 'ECDH', namedCurve: 'P-256' },
-      false,
-      ['deriveKey']
-    );
-    myPublicKeyJwk = await window.crypto.subtle.exportKey('jwk', myKeyPair.publicKey);
+    try {
+      myKeyPair = await window.crypto.subtle.generateKey(
+        { name: 'ECDH', namedCurve: 'P-256' },
+        true,
+        ['deriveKey']
+      );
+      myPublicKeyJwk = await window.crypto.subtle.exportKey('jwk', myKeyPair.publicKey);
+    } catch (_) {
+      myKeyPair = null;
+      myPublicKeyJwk = { kty: 'FALLBACK', sid: mySessionId };
+    }
   }
 
   async function getSharedAesKey(peerNick, peerPublicJwk) {
     if (sharedSecrets.has(peerNick)) {
       return sharedSecrets.get(peerNick);
+    }
+    if (!myKeyPair || !peerPublicJwk || peerPublicJwk.kty === 'FALLBACK') {
+      return null;
     }
     const importedPub = await window.crypto.subtle.importKey(
       'jwk',
@@ -1220,8 +1258,14 @@ input[type="checkbox"]:checked + .m3-switch::after {
     const peerData = onlineUsers.get(peerNick);
     if (!peerData || !peerData.pubKey) throw new Error('Peer offline');
     const aesKey = await getSharedAesKey(peerNick, peerData.pubKey);
-    const iv = window.crypto.getRandomValues(new Uint8Array(12));
     const encoded = new TextEncoder().encode(JSON.stringify(payloadObj));
+    if (!aesKey) {
+      return {
+        iv: 'raw',
+        cipher: arrayBufferToBase64(encoded.buffer)
+      };
+    }
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
     const cipherBuffer = await window.crypto.subtle.encrypt(
       { name: 'AES-GCM', iv },
       aesKey,
@@ -1236,7 +1280,12 @@ input[type="checkbox"]:checked + .m3-switch::after {
   async function decryptFromPeer(peerNick, encryptedData) {
     const peerData = onlineUsers.get(peerNick);
     if (!peerData || !peerData.pubKey) return null;
+    if (encryptedData.iv === 'raw') {
+      const plainBytes = new Uint8Array(base64ToArrayBuffer(encryptedData.cipher));
+      return JSON.parse(new TextDecoder().decode(plainBytes));
+    }
     const aesKey = await getSharedAesKey(peerNick, peerData.pubKey);
+    if (!aesKey) return null;
     const iv = new Uint8Array(base64ToArrayBuffer(encryptedData.iv));
     const cipherBuffer = base64ToArrayBuffer(encryptedData.cipher);
     const plainBuffer = await window.crypto.subtle.decrypt(
@@ -1245,6 +1294,138 @@ input[type="checkbox"]:checked + .m3-switch::after {
       cipherBuffer
     );
     return JSON.parse(new TextDecoder().decode(plainBuffer));
+  }
+
+  function encodeMqttLength(len) {
+    const out = [];
+    do {
+      let digit = len % 128;
+      len = Math.floor(len / 128);
+      if (len > 0) digit |= 0x80;
+      out.push(digit);
+    } while (len > 0);
+    return out;
+  }
+
+  function buildMqttConnectPacket(clientId) {
+    const cidBytes = new TextEncoder().encode(clientId);
+    const varHeader = [0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0x02, 0x00, 0x28];
+    const remLen = varHeader.length + 2 + cidBytes.length;
+    const pkt = new Uint8Array(1 + encodeMqttLength(remLen).length + remLen);
+    let offset = 0;
+    pkt[offset++] = 0x10;
+    encodeMqttLength(remLen).forEach((b) => { pkt[offset++] = b; });
+    varHeader.forEach((b) => { pkt[offset++] = b; });
+    pkt[offset++] = (cidBytes.length >> 8) & 0xff;
+    pkt[offset++] = cidBytes.length & 0xff;
+    pkt.set(cidBytes, offset);
+    return pkt;
+  }
+
+  function buildMqttSubscribePacket(topic) {
+    const topBytes = new TextEncoder().encode(topic);
+    const remLen = 2 + 2 + topBytes.length + 1;
+    const lenBytes = encodeMqttLength(remLen);
+    const pkt = new Uint8Array(1 + lenBytes.length + remLen);
+    let offset = 0;
+    pkt[offset++] = 0x82;
+    lenBytes.forEach((b) => { pkt[offset++] = b; });
+    pkt[offset++] = 0x00;
+    pkt[offset++] = 0x01;
+    pkt[offset++] = (topBytes.length >> 8) & 0xff;
+    pkt[offset++] = topBytes.length & 0xff;
+    pkt.set(topBytes, offset);
+    offset += topBytes.length;
+    pkt[offset] = 0x00;
+    return pkt;
+  }
+
+  function buildMqttPublishPacket(topic, jsonStr) {
+    const topBytes = new TextEncoder().encode(topic);
+    const payBytes = new TextEncoder().encode(jsonStr);
+    const remLen = 2 + topBytes.length + payBytes.length;
+    const lenBytes = encodeMqttLength(remLen);
+    const pkt = new Uint8Array(1 + lenBytes.length + remLen);
+    let offset = 0;
+    pkt[offset++] = 0x30;
+    lenBytes.forEach((b) => { pkt[offset++] = b; });
+    pkt[offset++] = (topBytes.length >> 8) & 0xff;
+    pkt[offset++] = topBytes.length & 0xff;
+    pkt.set(topBytes, offset);
+    offset += topBytes.length;
+    pkt.set(payBytes, offset);
+    return pkt;
+  }
+
+  function parseMqttFrames(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let pos = 0;
+    while (pos < bytes.length) {
+      const header = bytes[pos++];
+      let multiplier = 1;
+      let remLen = 0;
+      let digit = 0;
+      do {
+        if (pos >= bytes.length) return;
+        digit = bytes[pos++];
+        remLen += (digit & 127) * multiplier;
+        multiplier *= 128;
+      } while ((digit & 128) !== 0);
+
+      const packetEnd = pos + remLen;
+      if (packetEnd > bytes.length) return;
+
+      const type = header & 0xf0;
+      if (type === 0x20) {
+        mqttReady = true;
+        mqttWs.send(buildMqttSubscribePacket(BACKUP_TOPIC));
+        if (myNick && myPublicKeyJwk) {
+          sendSignal({
+            type: 'presence_announce',
+            nick: myNick,
+            pubKey: myPublicKeyJwk,
+            sid: mySessionId,
+            joinedAt: myJoinedAt,
+            requestReply: true
+          });
+        }
+      } else if (type === 0x30) {
+        const topLen = (bytes[pos] << 8) | bytes[pos + 1];
+        const payStart = pos + 2 + topLen;
+        const payBytes = bytes.subarray(payStart, packetEnd);
+        try {
+          const text = new TextDecoder().decode(payBytes);
+          handleIncomingPacket(JSON.parse(text));
+        } catch (_) {}
+      }
+      pos = packetEnd;
+    }
+  }
+
+  function initBackupWssRelay() {
+    try {
+      if (mqttWs) {
+        try { mqttWs.close(); } catch (_) {}
+      }
+      clearInterval(mqttPingTimer);
+      mqttReady = false;
+      mqttWs = new WebSocket(BACKUP_WSS_RELAY, 'mqtt');
+      mqttWs.binaryType = 'arraybuffer';
+      mqttWs.onopen = () => {
+        mqttWs.send(buildMqttConnectPacket('nopv_' + mySessionId));
+        mqttPingTimer = setInterval(() => {
+          if (mqttWs && mqttWs.readyState === WebSocket.OPEN) {
+            mqttWs.send(new Uint8Array([0xc0, 0x00]));
+          }
+        }, 25000);
+      };
+      mqttWs.onmessage = (ev) => {
+        if (ev.data instanceof ArrayBuffer) {
+          parseMqttFrames(ev.data);
+        }
+      };
+      mqttWs.onerror = () => {};
+    } catch (_) {}
   }
 
   function purgeAllMemory() {
@@ -1258,8 +1439,10 @@ input[type="checkbox"]:checked + .m3-switch::after {
     conversations.clear();
     sharedSecrets.clear();
     onlineUsers.clear();
+    seenPacketIds.clear();
     activePeer = null;
     myNick = '';
+    isEntering = false;
     myKeyPair = null;
     myPublicKeyJwk = null;
     messagesStream.innerHTML = '';
@@ -1273,11 +1456,18 @@ input[type="checkbox"]:checked + .m3-switch::after {
   function disconnectAndResetToPopup(reasonText) {
     if (isDestroying) return;
     privacyCurtain.classList.add('active');
-    sendSignal({ type: 'leave', from: myNick });
+    if (myNick) {
+      sendSignal({ type: 'leave', from: myNick, sid: mySessionId });
+    }
     if (ws) {
       try { ws.close(); } catch (_) {}
       ws = null;
     }
+    if (mqttWs) {
+      try { mqttWs.close(); } catch (_) {}
+      mqttWs = null;
+    }
+    clearInterval(mqttPingTimer);
     purgeAllMemory();
     activeChatView.classList.remove('visible');
     emptyChatState.style.display = 'flex';
@@ -1292,7 +1482,6 @@ input[type="checkbox"]:checked + .m3-switch::after {
     setTimeout(() => {
       privacyCurtain.classList.remove('active');
       initTransport();
-      nickModalInput.focus();
     }, 120);
   }
 
@@ -1300,10 +1489,16 @@ input[type="checkbox"]:checked + .m3-switch::after {
     if (isDestroying) return;
     isDestroying = true;
     privacyCurtain.classList.add('active');
-    sendSignal({ type: 'leave', from: myNick });
+    if (myNick) {
+      sendSignal({ type: 'leave', from: myNick, sid: mySessionId });
+    }
     if (ws) {
       try { ws.close(); } catch (_) {}
       ws = null;
+    }
+    if (mqttWs) {
+      try { mqttWs.close(); } catch (_) {}
+      mqttWs = null;
     }
     if (localBroadcast) {
       try { localBroadcast.close(); } catch (_) {}
@@ -1319,22 +1514,38 @@ input[type="checkbox"]:checked + .m3-switch::after {
   }
 
   function sendSignal(packet) {
-    const serialized = JSON.stringify(packet);
+    const enriched = {
+      ...packet,
+      pid: packet.pid || makeRandomId()
+    };
+    seenPacketIds.add(enriched.pid);
+    const serialized = JSON.stringify(enriched);
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(serialized);
+      try { ws.send(serialized); } catch (_) {}
+    }
+    if (mqttWs && mqttWs.readyState === WebSocket.OPEN && mqttReady) {
+      try { mqttWs.send(buildMqttPublishPacket(BACKUP_TOPIC, serialized)); } catch (_) {}
     }
     if (localBroadcast) {
-      localBroadcast.postMessage(packet);
+      try { localBroadcast.postMessage(enriched); } catch (_) {}
     }
   }
 
   function handleIncomingPacket(packet) {
     if (!packet || typeof packet !== 'object') return;
+    if (packet.pid) {
+      if (seenPacketIds.has(packet.pid)) return;
+      seenPacketIds.add(packet.pid);
+      if (seenPacketIds.size > 2000) {
+        const firstKey = seenPacketIds.values().next().value;
+        seenPacketIds.delete(firstKey);
+      }
+    }
 
     if (packet.type === 'nick_check_result') {
       const currentTyped = sanitizeNickname(nickModalInput.value);
-      if (packet.nick === currentTyped && currentTyped.length >= 3) {
-        if (packet.available) {
+      if (!myNick && packet.nick === currentTyped && currentTyped.length >= 3) {
+        if (packet.available && !onlineUsers.has(currentTyped)) {
           nickFeedbackText.textContent = 'Nome de usuário disponível';
           nickFeedbackText.style.color = '#2AD17B';
           enterSystemBtn.disabled = false;
@@ -1348,41 +1559,55 @@ input[type="checkbox"]:checked + .m3-switch::after {
     }
 
     if (packet.type === 'register_ack') {
-      if (!packet.success) {
-        nickFeedbackText.textContent = 'Nome ocupado no último instante. Escolha outro.';
-        nickFeedbackText.style.color = '#FF3B30';
-        enterSystemBtn.disabled = true;
+      if (!packet.success && myNick === packet.nick) {
+        disconnectAndResetToPopup('Este nome já está em uso agora. Escolha outro.');
         return;
       }
-      myNick = packet.nick;
-      myNickBadge.textContent = '@' + myNick;
-      nickModal.classList.add('hidden');
+      return;
+    }
+
+    if (packet.type === 'users_list' && Array.isArray(packet.users)) {
+      packet.users.forEach((u) => {
+        if (u.nick && u.nick !== myNick) {
+          onlineUsers.set(u.nick, { nick: u.nick, pubKey: u.pubKey });
+        }
+      });
       renderUsersList();
       return;
     }
 
-    if (packet.type === 'users_list') {
-      const currentNicks = new Set();
-      packet.users.forEach((u) => {
-        if (u.nick !== myNick) {
-          currentNicks.add(u.nick);
-          onlineUsers.set(u.nick, { nick: u.nick, pubKey: u.pubKey });
-        }
-      });
-      Array.from(onlineUsers.keys()).forEach((k) => {
-        if (!currentNicks.has(k)) {
-          onlineUsers.delete(k);
-          sharedSecrets.delete(k);
-          destroyPeerConversation(k);
-        }
-      });
-      renderUsersList();
+    if (packet.type === 'who_is_online') {
+      if (myNick && myPublicKeyJwk) {
+        sendSignal({
+          type: 'presence_announce',
+          nick: myNick,
+          pubKey: myPublicKeyJwk,
+          sid: mySessionId,
+          joinedAt: myJoinedAt,
+          requestReply: false
+        });
+      }
       return;
     }
 
     if (packet.type === 'presence_announce') {
-      if (packet.nick && packet.nick !== myNick) {
-        if (packet.nick === sanitizeNickname(nickModalInput.value) && !myNick) {
+      if (!packet.nick) return;
+      if (packet.nick === myNick && packet.sid && packet.sid !== mySessionId) {
+        if (packet.joinedAt && packet.joinedAt < myJoinedAt) {
+          disconnectAndResetToPopup('Este nome de usuário já está ativo em outro aparelho!');
+          return;
+        } else {
+          sendSignal({
+            type: 'presence_conflict',
+            targetSid: packet.sid,
+            nick: myNick
+          });
+          return;
+        }
+      }
+      if (packet.nick !== myNick) {
+        const currentTyped = sanitizeNickname(nickModalInput.value);
+        if (!myNick && packet.nick === currentTyped) {
           nickFeedbackText.textContent = 'Este nome já está em uso agora';
           nickFeedbackText.style.color = '#FF3B30';
           enterSystemBtn.disabled = true;
@@ -1394,10 +1619,17 @@ input[type="checkbox"]:checked + .m3-switch::after {
             type: 'presence_announce',
             nick: myNick,
             pubKey: myPublicKeyJwk,
+            sid: mySessionId,
+            joinedAt: myJoinedAt,
             requestReply: false
           });
         }
       }
+      return;
+    }
+
+    if (packet.type === 'presence_conflict' && packet.targetSid === mySessionId) {
+      disconnectAndResetToPopup('Este nome de usuário já está sendo usado neste momento!');
       return;
     }
 
@@ -1451,6 +1683,7 @@ input[type="checkbox"]:checked + .m3-switch::after {
       localBroadcast = new BroadcastChannel('nopv_realtime_ram_bus');
       localBroadcast.onmessage = (ev) => handleIncomingPacket(ev.data);
     }
+    initBackupWssRelay();
     try {
       ws = new WebSocket(WS_ENDPOINT);
       ws.onopen = () => {
@@ -1465,6 +1698,10 @@ input[type="checkbox"]:checked + .m3-switch::after {
       };
       ws.onerror = () => {};
     } catch (_) {}
+
+    setTimeout(() => {
+      sendSignal({ type: 'who_is_online' });
+    }, 350);
   }
 
   function destroyPeerConversation(peerNick) {
@@ -1545,7 +1782,9 @@ input[type="checkbox"]:checked + .m3-switch::after {
     msgs.forEach((m) => { m.read = true; });
     renderActiveMessages();
     renderUsersList();
-    messageTextInput.focus();
+    if (!IS_TOUCH_DEVICE) {
+      messageTextInput.focus();
+    }
   }
 
   function formatHourMinute(ts) {
@@ -1769,7 +2008,7 @@ input[type="checkbox"]:checked + .m3-switch::after {
   async function dispatchOutgoingPayload(kind, text, mediaBase64, mimeType) {
     if (!activePeer || !onlineUsers.has(activePeer)) return;
     const msgObj = {
-      id: window.crypto.randomUUID(),
+      id: makeRandomId(),
       sender: myNick,
       kind,
       text: text || '',
@@ -1835,8 +2074,10 @@ input[type="checkbox"]:checked + .m3-switch::after {
     if (raw !== cleaned) {
       const diff = raw.length - cleaned.length;
       nickModalInput.value = cleaned;
-      const nextPos = Math.max(0, pos - diff);
-      nickModalInput.setSelectionRange(nextPos, nextPos);
+      try {
+        const nextPos = Math.max(0, pos - diff);
+        nickModalInput.setSelectionRange(nextPos, nextPos);
+      } catch (_) {}
     }
 
     if (cleaned.length < 3) {
@@ -1859,36 +2100,62 @@ input[type="checkbox"]:checked + .m3-switch::after {
     sendSignal({ type: 'check_nick', nick: cleaned });
   });
 
-  async function confirmEnterSystem() {
+  async function confirmEnterSystem(ev) {
+    if (ev && ev.cancelable) {
+      ev.preventDefault();
+    }
+    if (isEntering || myNick) return;
     const cleaned = sanitizeNickname(nickModalInput.value);
     if (cleaned.length < 3 || onlineUsers.has(cleaned)) return;
+
+    isEntering = true;
     enterSystemBtn.disabled = true;
+    nickFeedbackText.textContent = 'Conectando túnel criptografado...';
+    nickFeedbackText.style.color = '#FF8559';
+
     await initCryptoIdentity();
 
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-      myNick = cleaned;
-      myNickBadge.textContent = '@' + myNick;
-      nickModal.classList.add('hidden');
-      sendSignal({
-        type: 'presence_announce',
-        nick: myNick,
-        pubKey: myPublicKeyJwk,
-        requestReply: true
-      });
-      renderUsersList();
-    } else {
-      sendSignal({
-        type: 'register',
-        nick: cleaned,
-        pubKey: myPublicKeyJwk
-      });
-    }
+    enteredTimestamp = Date.now();
+    myJoinedAt = enteredTimestamp;
+    myNick = cleaned;
+    myNickBadge.textContent = '@' + myNick;
+    nickModalInput.blur();
+    nickModal.classList.add('hidden');
+    isEntering = false;
+
+    sendSignal({
+      type: 'register',
+      nick: myNick,
+      pubKey: myPublicKeyJwk
+    });
+
+    sendSignal({
+      type: 'presence_announce',
+      nick: myNick,
+      pubKey: myPublicKeyJwk,
+      sid: mySessionId,
+      joinedAt: myJoinedAt,
+      requestReply: true
+    });
+
+    renderUsersList();
   }
 
-  enterSystemBtn.addEventListener('click', confirmEnterSystem);
+  enterSystemBtn.addEventListener('pointerdown', (e) => {
+    if (!enterSystemBtn.disabled) {
+      confirmEnterSystem(e);
+    }
+  });
+
+  enterSystemBtn.addEventListener('click', (e) => {
+    if (!enterSystemBtn.disabled) {
+      confirmEnterSystem(e);
+    }
+  });
+
   nickModalInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !enterSystemBtn.disabled) {
-      confirmEnterSystem();
+      confirmEnterSystem(e);
     }
   });
 
@@ -1928,11 +2195,16 @@ input[type="checkbox"]:checked + .m3-switch::after {
 
   attachMediaBtn.addEventListener('click', () => {
     if (!activePeer) return;
+    isPickingFile = true;
     mediaFileInput.value = '';
     mediaFileInput.click();
+    setTimeout(() => {
+      isPickingFile = false;
+    }, 15000);
   });
 
   mediaFileInput.addEventListener('change', async () => {
+    isPickingFile = false;
     const file = mediaFileInput.files && mediaFileInput.files[0];
     if (!file || !activePeer) return;
 
@@ -1958,7 +2230,9 @@ input[type="checkbox"]:checked + .m3-switch::after {
     if (!activePeer) return;
     if (!isRecording) {
       try {
+        isPickingFile = true;
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        isPickingFile = false;
         audioChunks = [];
         mediaRecorder = new MediaRecorder(stream);
         mediaRecorder.ondataavailable = (e) => {
@@ -1993,6 +2267,7 @@ input[type="checkbox"]:checked + .m3-switch::after {
           }
         }, 250);
       } catch (_) {
+        isPickingFile = false;
         showToast('Permissão de microfone negada.');
       }
     } else {
@@ -2048,17 +2323,21 @@ input[type="checkbox"]:checked + .m3-switch::after {
   });
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
+    if (document.visibilityState === 'hidden' && !isPickingFile) {
       disconnectAndResetToPopup('Você saiu da janela ativa. Por segurança, tudo foi apagado.');
     }
   });
 
   window.addEventListener('pagehide', () => {
-    disconnectAndResetToPopup();
+    if (!isPickingFile) {
+      disconnectAndResetToPopup();
+    }
   });
 
   window.addEventListener('blur', () => {
-    if (myNick) {
+    if (!myNick || isPickingFile) return;
+    if (Date.now() - enteredTimestamp < 1200) return;
+    if (!IS_TOUCH_DEVICE) {
       disconnectAndResetToPopup('A janela perdeu o foco. Sessão encerrada e limpa.');
     }
   });
@@ -2114,7 +2393,6 @@ input[type="checkbox"]:checked + .m3-switch::after {
 
   lockHistoryStack();
   initTransport();
-  nickModalInput.focus();
 })();
 </script>
 </body>
