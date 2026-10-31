@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="theme-color" content="#140F0D">
+<title>NoPV</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='36' fill='%23140F0D'/%3E%3Crect x='6' y='6' width='108' height='108' rx='32' fill='none' stroke='%23FF4000' stroke-width='4' stroke-opacity='0.35'/%3E%3Cpath d='M60 22L28 36v22c0 21.2 13.6 40.9 32 46 18.4-5.1 32-24.8 32-46V36L60 22z' fill='%23FF4000'/%3E%3Cpath d='M60 44a9 9 0 00-9 9v5h-3a4 4 0 00-4 4v14a4 4 0 004 4h24a4 4 0 004-4V62a4 4 0 00-4-4h-3v-5a9 9 0 00-9-9zm-4 14v-5a4 4 0 018 0v5h-8z' fill='%23140F0D'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='36' fill='%23FF4000'/%3E%3Cpath d='M60 24L30 37v21c0 19.8 12.8 38.2 30 43 17.2-4.8 30-23.2 30-43V37L60 24z' fill='%23140F0D'/%3E%3Ccircle cx='60' cy='58' r='9' fill='%23FF4000'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0&display=swap" rel="stylesheet">
+<style>
+:root {
+  --m3-primary: #FF4000;
+  --m3-primary-hover: #FF571F;
+  --m3-primary-container: #3D160A;
+  --m3-on-primary: #FFFFFF;
+  --m3-on-primary-container: #FFDBCF;
+  --m3-bg: #0E0A09;
+  --m3-surface: #171210;
+  --m3-surface-1: #201917;
+  --m3-surface-2: #2B221F;
+  --m3-surface-3: #362B27;
+  --m3-outline: #4E3E39;
+  --m3-outline-soft: rgba(255, 64, 0, 0.16);
+  --m3-text: #F9EFEA;
+  --m3-text-muted: #B8A39B;
+  --m3-danger: #FF3B30;
+  --m3-success: #2AD17B;
+  --m3-radius-xl: 32px;
+  --m3-radius-lg: 24px;
+  --m3-radius-md: 18px;
+  --m3-radius-sm: 14px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--m3-bg);
+  color: var(--m3-text);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  position: fixed;
+  inset: 0;
+}
+
+.material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  font-size: 22px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#privacyCurtain {
+  position: fixed;
+  inset: 0;
+  background: #000000;
+  z-index: 999999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#privacyCurtain.active {
+  display: flex;
+}
+
+#emergencyBanner {
+  height: 36px;
+  background: linear-gradient(90deg, #291008 0%, #3D160A 50%, #291008 100%);
+  border-bottom: 1px solid var(--m3-outline-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--m3-on-primary-container);
+  cursor: pointer;
+  letter-spacing: 0.2px;
+}
+
+#emergencyBanner .pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--m3-primary);
+  box-shadow: 0 0 10px var(--m3-primary);
+  display: inline-block;
+  margin-right: 8px;
+}
+
+#appShell {
+  display: flex;
+  width: 100%;
+  height: calc(100% - 36px);
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 12px;
+  gap: 12px;
+}
+
+.sidebar {
+  width: 390px;
+  min-width: 320px;
+  background: var(--m3-surface);
+  border-radius: var(--m3-radius-xl);
+  border: 1px solid var(--m3-outline-soft);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.sidebar-header {
+  padding: 18px 20px;
+  background: var(--m3-surface-1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--m3-primary) 0%, #C82800 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(255, 64, 0, 0.35);
+}
+
+.brand-title {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.my-nick-pill {
+  font-size: 12px;
+  color: var(--m3-on-primary-container);
+  background: var(--m3-primary-container);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  border: none;
+  background: var(--m3-surface-2);
+  color: var(--m3-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.14s cubic-bezier(0.2, 0, 0, 1), background 0.14s ease;
+}
+
+.icon-btn:active {
+  transform: scale(0.92);
+}
+
+.icon-btn:hover {
+  background: var(--m3-surface-3);
+}
+
+.icon-btn.primary {
+  background: var(--m3-primary);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(255, 64, 0, 0.32);
+}
+
+.icon-btn.danger {
+  background: rgba(255, 59, 48, 0.16);
+  color: #FF6961;
+}
+
+.search-box {
+  padding: 14px 16px 10px;
+}
+
+.search-input-wrap {
+  background: var(--m3-surface-2);
+  border-radius: 999px;
+  padding: 0 16px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  transition: border 0.2s ease;
+}
+
+.search-input-wrap:focus-within {
+  border-color: var(--m3-primary);
+}
+
+.search-input-wrap input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--m3-text);
+  font-size: 14px;
+  width: 100%;
+  font-family: inherit;
+}
+
+.online-counter-bar {
+  padding: 6px 20px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--m3-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.users-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: var(--m3-radius-lg);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.16s ease, transform 0.12s ease;
+  border: 1px solid transparent;
+}
+
+.user-card:hover {
+  background: var(--m3-surface-1);
+}
+
+.user-card.active {
+  background: var(--m3-primary-container);
+  border-color: rgba(255, 64, 0, 0.4);
+}
+
+.user-card-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.anon-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 18px;
+  background: var(--m3-surface-2);
+  color: var(--m3-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 17px;
+  position: relative;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 64, 0, 0.22);
+}
+
+.online-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--m3-success);
+  border: 3px solid var(--m3-surface);
+}
+
+.user-meta {
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--m3-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-status {
+  font-size: 12px;
+  color: var(--m3-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.unread-badge {
+  background: var(--m3-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(255, 64, 0, 0.4);
+}
+
+.chat-area {
+  flex: 1;
+  background: var(--m3-surface);
+  border-radius: var(--m3-radius-xl);
+  border: 1px solid var(--m3-outline-soft);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  gap: 16px;
+}
+
+.empty-illustration {
+  width: 96px;
+  height: 96px;
+  border-radius: 32px;
+  background: var(--m3-primary-container);
+  border: 1px solid rgba(255, 64, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--m3-primary);
+  box-shadow: 0 16px 40px rgba(255, 64, 0, 0.18);
+}
+
+.empty-state h2 {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.empty-state p {
+  max-width: 420px;
+  font-size: 14px;
+  color: var(--m3-text-muted);
+  line-height: 1.55;
+}
+
+.security-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.security-pill {
+  background: var(--m3-surface-2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--m3-on-primary-container);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-active-view {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.chat-active-view.visible {
+  display: flex;
+}
+
+.chat-header {
+  padding: 14px 20px;
+  background: var(--m3-surface-1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mobile-back-btn {
+  display: none;
+}
+
+.chat-peer-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--m3-text);
+}
+
+.chat-peer-sub {
+  font-size: 12px;
+  color: var(--m3-success);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.session-burn-pill {
+  background: var(--m3-primary-container);
+  color: var(--m3-on-primary-container);
+  border: 1px solid rgba(255, 64, 0, 0.35);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.messages-stream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-image: radial-gradient(rgba(255, 64, 0, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.msg-row {
+  display: flex;
+  width: 100%;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.msg-row.out {
+  justify-content: flex-end;
+}
+
+.msg-row.in {
+  justify-content: flex-start;
+}
+
+.msg-bubble {
+  max-width: min(76%, 520px);
+  padding: 11px 14px 9px;
+  border-radius: 22px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  word-break: break-word;
+}
+
+.msg-row.out .msg-bubble {
+  background: linear-gradient(135deg, #FF4000 0%, #D93200 100%);
+  color: #FFFFFF;
+  border-bottom-right-radius: 6px;
+}
+
+.msg-row.in .msg-bubble {
+  background: var(--m3-surface-2);
+  color: var(--m3-text);
+  border-bottom-left-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.msg-text {
+  font-size: 14.5px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.msg-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.92;
+  margin-top: 2px;
+}
+
+.msg-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.28);
+  color: #FFE4DA;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.msg-row.in .msg-timer-badge {
+  background: var(--m3-primary-container);
+  color: #FF8559;
+}
+
+.media-vault {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #090706;
+  min-width: 240px;
+  max-width: 340px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.media-vault canvas,
+.media-vault video {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  transition: filter 0.08s linear;
+  pointer-events: none;
+}
+
+.media-vault.locked canvas,
+.media-vault.locked video {
+  filter: blur(28px) brightness(0.35) contrast(1.2);
+}
+
+.hold-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(14, 10, 9, 0.55);
+  color: #fff;
+  text-align: center;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.media-vault.revealed .hold-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hold-pill {
+  background: rgba(255, 64, 0, 0.9);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 6px 20px rgba(255, 64, 0, 0.45);
+}
+
+.media-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.download-chip {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.audio-player-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 230px;
+  padding: 6px 4px;
+}
+
+.audio-play-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.audio-wave-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.audio-wave-fill {
+  height: 100%;
+  width: 0%;
+  background: #fff;
+  transition: width 0.1s linear;
+}
+
+.msg-row.in .audio-wave-fill {
+  background: var(--m3-primary);
+}
+
+.compose-options-bar {
+  padding: 8px 18px;
+  background: var(--m3-surface-1);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--m3-text-muted);
+}
+
+.m3-switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--m3-text);
+}
+
+.m3-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--m3-surface-3);
+  border-radius: 999px;
+  transition: background 0.18s ease;
+  border: 1px solid var(--m3-outline);
+}
+
+.m3-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--m3-text-muted);
+  transition: transform 0.18s cubic-bezier(0.2, 0, 0, 1), background 0.18s ease;
+}
+
+input[type="checkbox"]:checked + .m3-switch {
+  background: var(--m3-primary);
+  border-color: var(--m3-primary);
+}
+
+input[type="checkbox"]:checked + .m3-switch::after {
+  transform: translateX(20px);
+  background: #ffffff;
+}
+
+.chat-input-bar {
+  padding: 12px 16px;
+  background: var(--m3-surface-1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-text-wrapper {
+  flex: 1;
+  background: var(--m3-surface-2);
+  border-radius: 24px;
+  padding: 0 16px;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  border: 1px solid transparent;
+}
+
+.chat-text-wrapper:focus-within {
+  border-color: var(--m3-primary);
+}
+
+.chat-text-wrapper input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--m3-text);
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.recording-indicator {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  color: var(--m3-primary);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.recording-indicator.active {
+  display: inline-flex;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 5, 4, 0.88);
+  backdrop-filter: blur(18px);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-backdrop.hidden {
+  display: none;
+}
+
+.m3-dialog {
+  width: 100%;
+  max-width: 420px;
+  background: var(--m3-surface-1);
+  border-radius: 32px;
+  border: 1px solid rgba(255, 64, 0, 0.32);
+  padding: 28px 24px;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: center;
+}
+
+.dialog-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--m3-primary) 0%, #B82900 100%);
+  color: #fff;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 30px rgba(255, 64, 0, 0.38);
+}
+
+.m3-dialog h1 {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.m3-dialog p {
+  font-size: 13.5px;
+  color: var(--m3-text-muted);
+  line-height: 1.5;
+}
+
+.nick-field-box {
+  background: var(--m3-surface-2);
+  border-radius: 20px;
+  padding: 14px 16px;
+  border: 2px solid var(--m3-outline);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.18s ease;
+}
+
+.nick-field-box:focus-within {
+  border-color: var(--m3-primary);
+}
+
+.nick-field-box input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--m3-text);
+  font-size: 17px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+}
+
+.nick-feedback {
+  font-size: 12.5px;
+  font-weight: 700;
+  min-height: 18px;
+}
+
+.m3-btn-full {
+  height: 52px;
+  border-radius: 20px;
+  border: none;
+  background: var(--m3-primary);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 10px 26px rgba(255, 64, 0, 0.38);
+  transition: transform 0.14s ease, opacity 0.14s ease;
+}
+
+.m3-btn-full:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.m3-btn-full:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.system-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2B120C;
+  border: 1px solid var(--m3-primary);
+  color: #FFE4DA;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 9500;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 860px) {
+  #appShell {
+    padding: 0;
+    gap: 0;
+  }
+  .sidebar, .chat-area {
+    width: 100%;
+    border-radius: 0;
+    border: none;
+  }
+  .sidebar.hidden-mobile {
+    display: none;
+  }
+  .chat-area.hidden-mobile {
+    display: none;
+  }
+  .mobile-back-btn {
+    display: inline-flex;
+  }
+}
+</style>
+</head>
+<body oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
+
+<div id="privacyCurtain">
+  <span class="material-symbols-rounded" style="font-size:56px;color:#FF4000">gpp_bad</span>
+  <h2 style="font-size:18px;font-weight:800;color:#fff">SESSÃO DESTRUÍDA POR SEGURANÇA</h2>
+</div>
+
+<div id="emergencyBanner" title="Toque duas vezes rápido para sair e limpar rastro">
+  <div><span class="pulse-dot"></span>MODO FANTASMA ATIVO • ZERO RASTRO (RAM)</div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <span class="material-symbols-rounded" style="font-size:16px;color:#FF4000">bolt</span>
+    <span>DUPLO TOQUE AQUI = EMERGÊNCIA</span>
+  </div>
+</div>
+
+<div id="appShell">
+  <aside class="sidebar" id="sidebarPane">
+    <header class="sidebar-header">
+      <div class="brand-wrap">
+        <div class="brand-logo">
+          <span class="material-symbols-rounded">shield_lock</span>
+        </div>
+        <div>
+          <div class="brand-title">NoPV <span class="my-nick-pill" id="myNickBadge">offline</span></div>
+          <div style="font-size:11px;color:var(--m3-text-muted);font-weight:600">Autodestruição em 60s</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="icon-btn danger" id="panicBtn" title="Saída de Emergência Imediata">
+          <span class="material-symbols-rounded">power_settings_new</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <span class="material-symbols-rounded" style="color:var(--m3-text-muted)">search</span>
+        <input type="text" id="userSearchInput" placeholder="Filtrar usuário online..." autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+
+    <div class="online-counter-bar">
+      <span>Usuários Ativos Agora</span>
+      <span id="onlineCountLabel">0 ONLINE</span>
+    </div>
+
+    <div class="users-list" id="usersListContainer"></div>
+  </aside>
+
+  <main class="chat-area hidden-mobile" id="chatPane">
+    <div class="empty-state" id="emptyChatState">
+      <div class="empty-illustration">
+        <span class="material-symbols-rounded" style="font-size:48px">encrypted</span>
+      </div>
+      <h2>Conversa Efêmera Blindada</h2>
+      <p>Selecione um usuário online ao lado. Todas as mensagens, fotos, vídeos, áudios e vínculos de contato desaparecem definitivamente em 60 segundos.</p>
+      <div class="security-pills">
+        <span class="security-pill"><span class="material-symbols-rounded" style="font-size:16px;color:#FF4000">timer</span> Timer Individual 60s</span>
+        <span class="security-pill"><span class="material-symbols-rounded" style="font-size:16px;color:#FF4000">visibility_off</span> Anti-Print Segure para Ver</span>
+        <span class="security-pill"><span class="material-symbols-rounded" style="font-size:16px;color:#FF4000">memory</span> Zero Banco de Dados</span>
+      </div>
+    </div>
+
+    <div class="chat-active-view" id="activeChatView">
+      <header class="chat-header">
+        <div class="chat-header-left">
+          <button class="icon-btn mobile-back-btn" id="mobileBackBtn">
+            <span class="material-symbols-rounded">arrow_back</span>
+          </button>
+          <div class="anon-avatar" id="activePeerAvatar">?</div>
+          <div>
+            <div class="chat-peer-name" id="activePeerName">usuario</div>
+            <div class="chat-peer-sub" id="activePeerStatus">Criptografia E2EE Ativa</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="session-burn-pill" title="Inatividade máxima do contato">
+            <span class="material-symbols-rounded" style="font-size:16px;color:#FF4000">local_fire_department</span>
+            <span id="contactInactivityTimer">60s</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="messages-stream" id="messagesStream"></div>
+
+      <div class="compose-options-bar">
+        <label class="m3-switch-label">
+          <input type="checkbox" id="allowDownloadToggle" style="display:none">
+          <span class="m3-switch"></span>
+          <span>Permitir download pelo destinatário</span>
+        </label>
+        <div class="recording-indicator" id="recordingIndicator">
+          <span class="material-symbols-rounded">mic</span>
+          <span id="recordingTimeLabel">Gravando 00:00</span>
+        </div>
+      </div>
+
+      <div class="chat-input-bar">
+        <input type="file" id="mediaFileInput" accept="image/*,video/*" style="display:none">
+        <button class="icon-btn" id="attachMediaBtn" title="Enviar Foto ou Vídeo (Sem GPS/EXIF)">
+          <span class="material-symbols-rounded">attach_file</span>
+        </button>
+        <div class="chat-text-wrapper">
+          <input type="text" id="messageTextInput" placeholder="Mensagem autodestrutiva (60s)..." autocomplete="off" spellcheck="false" maxlength="2000">
+        </div>
+        <button class="icon-btn" id="recordAudioBtn" title="Gravar Áudio Efêmero">
+          <span class="material-symbols-rounded" id="recordAudioIcon">mic</span>
+        </button>
+        <button class="icon-btn primary" id="sendMsgBtn" title="Enviar Agora">
+          <span class="material-symbols-rounded">send</span>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="nickModal">
+  <div class="m3-dialog">
+    <div class="dialog-icon">
+      <span class="material-symbols-rounded" style="font-size:36px">person_shield</span>
+    </div>
+    <h1>Identidade Efêmera</h1>
+    <p>Escolha um nome de usuário livre para entrar. Acentos, espaços e símbolos são corrigidos automaticamente na hora. Se sair da janela, tudo é desconectado.</p>
+    <div class="nick-field-box">
+      <span class="material-symbols-rounded" style="color:var(--m3-primary)">alternate_email</span>
+      <input type="text" id="nickModalInput" placeholder="seu_usuario" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20">
+    </div>
+    <div class="nick-feedback" id="nickFeedbackText" style="color:var(--m3-text-muted)">Digite pelo menos 3 caracteres</div>
+    <button class="m3-btn-full" id="enterSystemBtn" disabled>
+      <span class="material-symbols-rounded">login</span>
+      <span>ENTRAR AGORA</span>
+    </button>
+  </div>
+</div>
+
+<div class="system-toast" id="systemToast"></div>
+
+<script>
+(() => {
+  const WS_ENDPOINT = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'ws://127.0.0.1:8787/ws'
+    : 'wss://ws.nopv.online/ws';
+
+  const NEWS_REDIRECT_URL = 'https://news.google.com/?hl=pt-BR&gl=BR&ceid=BR:pt-419';
+  const MESSAGE_TTL_MS = 60000;
+  const CONTACT_INACTIVITY_MS = 60000;
+
+  let ws = null;
+  let localBroadcast = null;
+  let myNick = '';
+  let myKeyPair = null;
+  let myPublicKeyJwk = null;
+  let onlineUsers = new Map();
+  let sharedSecrets = new Map();
+  let conversations = new Map();
+  let activePeer = null;
+  let contactExpireAt = 0;
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let isRecording = false;
+  let recordStartedAt = 0;
+  let recordTimerInterval = null;
+  let lastHeaderTap = 0;
+  let lastEscPress = 0;
+  let typingTimeout = null;
+  let isDestroying = false;
+
+  const privacyCurtain = document.getElementById('privacyCurtain');
+  const emergencyBanner = document.getElementById('emergencyBanner');
+  const panicBtn = document.getElementById('panicBtn');
+  const nickModal = document.getElementById('nickModal');
+  const nickModalInput = document.getElementById('nickModalInput');
+  const nickFeedbackText = document.getElementById('nickFeedbackText');
+  const enterSystemBtn = document.getElementById('enterSystemBtn');
+  const myNickBadge = document.getElementById('myNickBadge');
+  const userSearchInput = document.getElementById('userSearchInput');
+  const onlineCountLabel = document.getElementById('onlineCountLabel');
+  const usersListContainer = document.getElementById('usersListContainer');
+  const sidebarPane = document.getElementById('sidebarPane');
+  const chatPane = document.getElementById('chatPane');
+  const emptyChatState = document.getElementById('emptyChatState');
+  const activeChatView = document.getElementById('activeChatView');
+  const mobileBackBtn = document.getElementById('mobileBackBtn');
+  const activePeerAvatar = document.getElementById('activePeerAvatar');
+  const activePeerName = document.getElementById('activePeerName');
+  const activePeerStatus = document.getElementById('activePeerStatus');
+  const contactInactivityTimer = document.getElementById('contactInactivityTimer');
+  const messagesStream = document.getElementById('messagesStream');
+  const allowDownloadToggle = document.getElementById('allowDownloadToggle');
+  const attachMediaBtn = document.getElementById('attachMediaBtn');
+  const mediaFileInput = document.getElementById('mediaFileInput');
+  const messageTextInput = document.getElementById('messageTextInput');
+  const recordAudioBtn = document.getElementById('recordAudioBtn');
+  const recordAudioIcon = document.getElementById('recordAudioIcon');
+  const recordingIndicator = document.getElementById('recordingIndicator');
+  const recordingTimeLabel = document.getElementById('recordingTimeLabel');
+  const sendMsgBtn = document.getElementById('sendMsgBtn');
+  const systemToast = document.getElementById('systemToast');
+
+  function lockHistoryStack() {
+    try {
+      window.history.replaceState({ nopvTrap: true }, '', window.location.href);
+      window.history.pushState({ nopvTrap: true }, '', window.location.href);
+    } catch (_) {}
+  }
+
+  window.addEventListener('popstate', () => {
+    triggerEmergencyGoogleNews();
+  });
+
+  function showToast(text) {
+    systemToast.textContent = text;
+    systemToast.style.display = 'inline-flex';
+    clearTimeout(systemToast._t);
+    systemToast._t = setTimeout(() => {
+      systemToast.style.display = 'none';
+    }, 3200);
+  }
+
+  function sanitizeNickname(raw) {
+    return raw
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9_]/g, '')
+      .toLowerCase()
+      .slice(0, 20);
+  }
+
+  async function initCryptoIdentity() {
+    myKeyPair = await window.crypto.subtle.generateKey(
+      { name: 'ECDH', namedCurve: 'P-256' },
+      false,
+      ['deriveKey']
+    );
+    myPublicKeyJwk = await window.crypto.subtle.exportKey('jwk', myKeyPair.publicKey);
+  }
+
+  async function getSharedAesKey(peerNick, peerPublicJwk) {
+    if (sharedSecrets.has(peerNick)) {
+      return sharedSecrets.get(peerNick);
+    }
+    const importedPub = await window.crypto.subtle.importKey(
+      'jwk',
+      peerPublicJwk,
+      { name: 'ECDH', namedCurve: 'P-256' },
+      false,
+      []
+    );
+    const aesKey = await window.crypto.subtle.deriveKey(
+      { name: 'ECDH', public: importedPub },
+      myKeyPair.privateKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+    sharedSecrets.set(peerNick, aesKey);
+    return aesKey;
+  }
+
+  function arrayBufferToBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+    }
+    return btoa(binary);
+  }
+
+  function base64ToArrayBuffer(base64) {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
+  async function encryptForPeer(peerNick, payloadObj) {
+    const peerData = onlineUsers.get(peerNick);
+    if (!peerData || !peerData.pubKey) throw new Error('Peer offline');
+    const aesKey = await getSharedAesKey(peerNick, peerData.pubKey);
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    const encoded = new TextEncoder().encode(JSON.stringify(payloadObj));
+    const cipherBuffer = await window.crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      aesKey,
+      encoded
+    );
+    return {
+      iv: arrayBufferToBase64(iv.buffer),
+      cipher: arrayBufferToBase64(cipherBuffer)
+    };
+  }
+
+  async function decryptFromPeer(peerNick, encryptedData) {
+    const peerData = onlineUsers.get(peerNick);
+    if (!peerData || !peerData.pubKey) return null;
+    const aesKey = await getSharedAesKey(peerNick, peerData.pubKey);
+    const iv = new Uint8Array(base64ToArrayBuffer(encryptedData.iv));
+    const cipherBuffer = base64ToArrayBuffer(encryptedData.cipher);
+    const plainBuffer = await window.crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      aesKey,
+      cipherBuffer
+    );
+    return JSON.parse(new TextDecoder().decode(plainBuffer));
+  }
+
+  function purgeAllMemory() {
+    conversations.forEach((msgs) => {
+      msgs.forEach((m) => {
+        if (m.objectUrl) {
+          try { URL.revokeObjectURL(m.objectUrl); } catch (_) {}
+        }
+      });
+    });
+    conversations.clear();
+    sharedSecrets.clear();
+    onlineUsers.clear();
+    activePeer = null;
+    myNick = '';
+    myKeyPair = null;
+    myPublicKeyJwk = null;
+    messagesStream.innerHTML = '';
+    usersListContainer.innerHTML = '';
+    messageTextInput.value = '';
+    if (isRecording && mediaRecorder) {
+      try { mediaRecorder.stop(); } catch (_) {}
+    }
+  }
+
+  function disconnectAndResetToPopup(reasonText) {
+    if (isDestroying) return;
+    privacyCurtain.classList.add('active');
+    sendSignal({ type: 'leave', from: myNick });
+    if (ws) {
+      try { ws.close(); } catch (_) {}
+      ws = null;
+    }
+    purgeAllMemory();
+    activeChatView.classList.remove('visible');
+    emptyChatState.style.display = 'flex';
+    sidebarPane.classList.remove('hidden-mobile');
+    chatPane.classList.add('hidden-mobile');
+    myNickBadge.textContent = 'offline';
+    nickModalInput.value = '';
+    enterSystemBtn.disabled = true;
+    nickFeedbackText.textContent = reasonText || 'Sessão encerrada por saída da janela. Identifique-se novamente.';
+    nickFeedbackText.style.color = '#FF8559';
+    nickModal.classList.remove('hidden');
+    setTimeout(() => {
+      privacyCurtain.classList.remove('active');
+      initTransport();
+      nickModalInput.focus();
+    }, 120);
+  }
+
+  function triggerEmergencyGoogleNews() {
+    if (isDestroying) return;
+    isDestroying = true;
+    privacyCurtain.classList.add('active');
+    sendSignal({ type: 'leave', from: myNick });
+    if (ws) {
+      try { ws.close(); } catch (_) {}
+      ws = null;
+    }
+    if (localBroadcast) {
+      try { localBroadcast.close(); } catch (_) {}
+      localBroadcast = null;
+    }
+    purgeAllMemory();
+    document.body.innerHTML = '';
+    document.body.style.backgroundColor = '#000000';
+    try {
+      window.history.replaceState(null, '', NEWS_REDIRECT_URL);
+    } catch (_) {}
+    window.location.replace(NEWS_REDIRECT_URL);
+  }
+
+  function sendSignal(packet) {
+    const serialized = JSON.stringify(packet);
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(serialized);
+    }
+    if (localBroadcast) {
+      localBroadcast.postMessage(packet);
+    }
+  }
+
+  function handleIncomingPacket(packet) {
+    if (!packet || typeof packet !== 'object') return;
+
+    if (packet.type === 'nick_check_result') {
+      const currentTyped = sanitizeNickname(nickModalInput.value);
+      if (packet.nick === currentTyped && currentTyped.length >= 3) {
+        if (packet.available) {
+          nickFeedbackText.textContent = 'Nome de usuário disponível';
+          nickFeedbackText.style.color = '#2AD17B';
+          enterSystemBtn.disabled = false;
+        } else {
+          nickFeedbackText.textContent = 'Este nome já está em uso agora';
+          nickFeedbackText.style.color = '#FF3B30';
+          enterSystemBtn.disabled = true;
+        }
+      }
+      return;
+    }
+
+    if (packet.type === 'register_ack') {
+      if (!packet.success) {
+        nickFeedbackText.textContent = 'Nome ocupado no último instante. Escolha outro.';
+        nickFeedbackText.style.color = '#FF3B30';
+        enterSystemBtn.disabled = true;
+        return;
+      }
+      myNick = packet.nick;
+      myNickBadge.textContent = '@' + myNick;
+      nickModal.classList.add('hidden');
+      renderUsersList();
+      return;
+    }
+
+    if (packet.type === 'users_list') {
+      const currentNicks = new Set();
+      packet.users.forEach((u) => {
+        if (u.nick !== myNick) {
+          currentNicks.add(u.nick);
+          onlineUsers.set(u.nick, { nick: u.nick, pubKey: u.pubKey });
+        }
+      });
+      Array.from(onlineUsers.keys()).forEach((k) => {
+        if (!currentNicks.has(k)) {
+          onlineUsers.delete(k);
+          sharedSecrets.delete(k);
+          destroyPeerConversation(k);
+        }
+      });
+      renderUsersList();
+      return;
+    }
+
+    if (packet.type === 'presence_announce') {
+      if (packet.nick && packet.nick !== myNick) {
+        if (packet.nick === sanitizeNickname(nickModalInput.value) && !myNick) {
+          nickFeedbackText.textContent = 'Este nome já está em uso agora';
+          nickFeedbackText.style.color = '#FF3B30';
+          enterSystemBtn.disabled = true;
+        }
+        onlineUsers.set(packet.nick, { nick: packet.nick, pubKey: packet.pubKey });
+        renderUsersList();
+        if (myNick && packet.requestReply) {
+          sendSignal({
+            type: 'presence_announce',
+            nick: myNick,
+            pubKey: myPublicKeyJwk,
+            requestReply: false
+          });
+        }
+      }
+      return;
+    }
+
+    if (packet.type === 'leave') {
+      if (packet.from && onlineUsers.has(packet.from)) {
+        onlineUsers.delete(packet.from);
+        sharedSecrets.delete(packet.from);
+        destroyPeerConversation(packet.from);
+        renderUsersList();
+      }
+      return;
+    }
+
+    if (packet.to && packet.to !== myNick) return;
+
+    if (packet.type === 'typing' && packet.from === activePeer) {
+      activePeerStatus.textContent = packet.mode === 'audio' ? 'Gravando áudio...' : 'Digitando...';
+      clearTimeout(activePeerStatus._t);
+      activePeerStatus._t = setTimeout(() => {
+        activePeerStatus.textContent = 'Criptografia E2EE Ativa';
+      }, 2200);
+      return;
+    }
+
+    if (packet.type === 'security_alert' && packet.from) {
+      showToast('⚠️ @' + packet.from + ' tentou capturar a tela e foi desconectado!');
+      destroyPeerConversation(packet.from);
+      return;
+    }
+
+    if (packet.type === 'encrypted_msg' && packet.from && packet.payload) {
+      decryptFromPeer(packet.from, packet.payload).then((decrypted) => {
+        if (!decrypted) return;
+        storeAndRenderMessage(packet.from, {
+          id: decrypted.id,
+          sender: packet.from,
+          kind: decrypted.kind,
+          text: decrypted.text || '',
+          mediaBase64: decrypted.mediaBase64 || null,
+          mimeType: decrypted.mimeType || '',
+          allowDownload: Boolean(decrypted.allowDownload),
+          sentAt: decrypted.sentAt,
+          expiresAt: Date.now() + MESSAGE_TTL_MS
+        });
+      }).catch(() => {});
+    }
+  }
+
+  function initTransport() {
+    if (!localBroadcast && 'BroadcastChannel' in window) {
+      localBroadcast = new BroadcastChannel('nopv_realtime_ram_bus');
+      localBroadcast.onmessage = (ev) => handleIncomingPacket(ev.data);
+    }
+    try {
+      ws = new WebSocket(WS_ENDPOINT);
+      ws.onopen = () => {
+        if (myNick && myPublicKeyJwk) {
+          sendSignal({ type: 'register', nick: myNick, pubKey: myPublicKeyJwk });
+        }
+      };
+      ws.onmessage = (ev) => {
+        try {
+          handleIncomingPacket(JSON.parse(ev.data));
+        } catch (_) {}
+      };
+      ws.onerror = () => {};
+    } catch (_) {}
+  }
+
+  function destroyPeerConversation(peerNick) {
+    const list = conversations.get(peerNick);
+    if (list) {
+      list.forEach((m) => {
+        if (m.objectUrl) {
+          try { URL.revokeObjectURL(m.objectUrl); } catch (_) {}
+        }
+      });
+      conversations.delete(peerNick);
+    }
+    if (activePeer === peerNick) {
+      activePeer = null;
+      messagesStream.innerHTML = '';
+      activeChatView.classList.remove('visible');
+      emptyChatState.style.display = 'flex';
+      sidebarPane.classList.remove('hidden-mobile');
+      chatPane.classList.add('hidden-mobile');
+    }
+  }
+
+  function renderUsersList() {
+    const filter = userSearchInput.value.trim().toLowerCase();
+    usersListContainer.innerHTML = '';
+    const peers = Array.from(onlineUsers.values()).filter((u) => u.nick.includes(filter));
+    onlineCountLabel.textContent = peers.length + ' ONLINE';
+
+    if (peers.length === 0) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'padding:32px 16px;text-align:center;color:var(--m3-text-muted);font-size:13px;';
+      empty.textContent = 'Nenhum outro usuário ativo neste segundo.';
+      usersListContainer.appendChild(empty);
+      return;
+    }
+
+    peers.forEach((peer) => {
+      const card = document.createElement('div');
+      card.className = 'user-card' + (activePeer === peer.nick ? ' active' : '');
+      const msgs = conversations.get(peer.nick) || [];
+      const unreadCount = msgs.filter((m) => m.sender === peer.nick && !m.read).length;
+
+      card.innerHTML = `
+        <div class="user-card-left">
+          <div class="anon-avatar">
+            ${peer.nick.slice(0, 2).toUpperCase()}
+            <span class="online-dot"></span>
+          </div>
+          <div class="user-meta">
+            <div class="user-name">@${peer.nick}</div>
+            <div class="user-status">
+              <span class="material-symbols-rounded" style="font-size:14px;color:#FF4000">bolt</span>
+              <span>Online agora • E2EE</span>
+            </div>
+          </div>
+        </div>
+        ${unreadCount > 0 ? `<span class="unread-badge">${unreadCount}</span>` : ''}
+      `;
+
+      card.addEventListener('click', () => openPeerChat(peer.nick));
+      usersListContainer.appendChild(card);
+    });
+  }
+
+  function openPeerChat(peerNick) {
+    if (!onlineUsers.has(peerNick)) return;
+    activePeer = peerNick;
+    contactExpireAt = Date.now() + CONTACT_INACTIVITY_MS;
+    activePeerAvatar.textContent = peerNick.slice(0, 2).toUpperCase();
+    activePeerName.textContent = '@' + peerNick;
+    activePeerStatus.textContent = 'Criptografia E2EE Ativa';
+    emptyChatState.style.display = 'none';
+    activeChatView.classList.add('visible');
+    sidebarPane.classList.add('hidden-mobile');
+    chatPane.classList.remove('hidden-mobile');
+
+    const msgs = conversations.get(peerNick) || [];
+    msgs.forEach((m) => { m.read = true; });
+    renderActiveMessages();
+    renderUsersList();
+    messageTextInput.focus();
+  }
+
+  function formatHourMinute(ts) {
+    const d = new Date(ts);
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+
+  function drawProtectedImageOnCanvas(canvas, dataUrl, senderNick) {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = 640;
+      const scale = img.width > maxW ? maxW / img.width : 1;
+      canvas.width = Math.max(1, Math.floor(img.width * scale));
+      canvas.height = Math.max(1, Math.floor(img.height * scale));
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.font = '700 13px Plus Jakarta Sans, sans-serif';
+      ctx.fillStyle = 'rgba(255, 64, 0, 0.28)';
+      ctx.rotate(-0.18);
+      for (let y = 40; y < canvas.height + 80; y += 70) {
+        for (let x = -60; x < canvas.width + 60; x += 160) {
+          ctx.fillText('NoPV • @' + senderNick, x, y);
+        }
+      }
+      ctx.restore();
+    };
+    img.src = dataUrl;
+  }
+
+  function storeAndRenderMessage(peerNick, msgObj) {
+    if (!conversations.has(peerNick)) {
+      conversations.set(peerNick, []);
+    }
+    if (activePeer === peerNick) {
+      msgObj.read = true;
+      contactExpireAt = Date.now() + CONTACT_INACTIVITY_MS;
+    }
+    conversations.get(peerNick).push(msgObj);
+    if (activePeer === peerNick) {
+      appendMessageDom(msgObj);
+    }
+    renderUsersList();
+  }
+
+  function appendMessageDom(msg) {
+    const isOut = msg.sender === myNick;
+    const row = document.createElement('div');
+    row.className = 'msg-row ' + (isOut ? 'out' : 'in');
+    row.dataset.msgId = msg.id;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+
+    if (msg.kind === 'text') {
+      const textEl = document.createElement('div');
+      textEl.className = 'msg-text';
+      textEl.textContent = msg.text;
+      bubble.appendChild(textEl);
+    } else if (msg.kind === 'image' || msg.kind === 'video') {
+      const vault = document.createElement('div');
+      vault.className = 'media-vault locked';
+      const dataUrl = 'data:' + msg.mimeType + ';base64,' + msg.mediaBase64;
+
+      if (msg.kind === 'image') {
+        const canvas = document.createElement('canvas');
+        drawProtectedImageOnCanvas(canvas, dataUrl, msg.sender);
+        vault.appendChild(canvas);
+      } else {
+        const video = document.createElement('video');
+        const blob = new Blob([base64ToArrayBuffer(msg.mediaBase64)], { type: msg.mimeType });
+        msg.objectUrl = URL.createObjectURL(blob);
+        video.src = msg.objectUrl;
+        video.loop = true;
+        video.playsInline = true;
+        video.disablePictureInPicture = true;
+        video.setAttribute('controlsList', 'nodownload noplaybackrate');
+        vault.appendChild(video);
+      }
+
+      const overlay = document.createElement('div');
+      overlay.className = 'hold-overlay';
+      overlay.innerHTML = `
+        <div class="hold-pill">
+          <span class="material-symbols-rounded" style="font-size:16px">touch_app</span>
+          <span>SEGURE PARA VER</span>
+        </div>
+        <span style="font-size:11px;opacity:0.85">Soltou o dedo, a mídia bloqueia na hora</span>
+      `;
+      vault.appendChild(overlay);
+
+      const unlockMedia = (ev) => {
+        if (ev.touches && ev.touches.length > 1) {
+          lockMedia();
+          return;
+        }
+        vault.classList.remove('locked');
+        vault.classList.add('revealed');
+        const vid = vault.querySelector('video');
+        if (vid) vid.play().catch(() => {});
+      };
+
+      const lockMedia = () => {
+        vault.classList.add('locked');
+        vault.classList.remove('revealed');
+        const vid = vault.querySelector('video');
+        if (vid) vid.pause();
+      };
+
+      vault.addEventListener('pointerdown', unlockMedia);
+      vault.addEventListener('pointerup', lockMedia);
+      vault.addEventListener('pointerleave', lockMedia);
+      vault.addEventListener('pointercancel', lockMedia);
+      vault.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) lockMedia();
+      }, { passive: true });
+
+      const actionsBar = document.createElement('div');
+      actionsBar.className = 'media-actions-bar';
+      actionsBar.innerHTML = `<span>${msg.allowDownload ? 'Download permitido' : 'Download bloqueado'}</span>`;
+
+      if (msg.allowDownload) {
+        const dlBtn = document.createElement('button');
+        dlBtn.className = 'download-chip';
+        dlBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size:14px">download</span><span>Baixar</span>`;
+        dlBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const a = document.createElement('a');
+          a.href = dataUrl;
+          const ext = msg.kind === 'image' ? 'jpg' : 'mp4';
+          a.download = 'nopv_' + msg.id + '.' + ext;
+          a.click();
+        });
+        actionsBar.appendChild(dlBtn);
+      }
+
+      vault.appendChild(actionsBar);
+      bubble.appendChild(vault);
+    } else if (msg.kind === 'audio') {
+      const audioBox = document.createElement('div');
+      audioBox.className = 'audio-player-box';
+      const blob = new Blob([base64ToArrayBuffer(msg.mediaBase64)], { type: msg.mimeType || 'audio/webm' });
+      msg.objectUrl = URL.createObjectURL(blob);
+      const audio = new Audio(msg.objectUrl);
+
+      const playBtn = document.createElement('button');
+      playBtn.className = 'audio-play-btn';
+      playBtn.innerHTML = `<span class="material-symbols-rounded">play_arrow</span>`;
+
+      const track = document.createElement('div');
+      track.className = 'audio-wave-track';
+      const fill = document.createElement('div');
+      fill.className = 'audio-wave-fill';
+      track.appendChild(fill);
+
+      playBtn.addEventListener('click', () => {
+        if (audio.paused) {
+          audio.play().catch(() => {});
+          playBtn.innerHTML = `<span class="material-symbols-rounded">pause</span>`;
+        } else {
+          audio.pause();
+          playBtn.innerHTML = `<span class="material-symbols-rounded">play_arrow</span>`;
+        }
+      });
+
+      audio.addEventListener('timeupdate', () => {
+        if (audio.duration) {
+          fill.style.width = Math.min(100, (audio.currentTime / audio.duration) * 100) + '%';
+        }
+      });
+
+      audio.addEventListener('ended', () => {
+        playBtn.innerHTML = `<span class="material-symbols-rounded">play_arrow</span>`;
+        fill.style.width = '0%';
+      });
+
+      audioBox.appendChild(playBtn);
+      audioBox.appendChild(track);
+
+      if (msg.allowDownload) {
+        const dlBtn = document.createElement('button');
+        dlBtn.className = 'download-chip';
+        dlBtn.innerHTML = `<span class="material-symbols-rounded" style="font-size:14px">download</span>`;
+        dlBtn.addEventListener('click', () => {
+          const a = document.createElement('a');
+          a.href = msg.objectUrl;
+          a.download = 'nopv_audio_' + msg.id + '.webm';
+          a.click();
+        });
+        audioBox.appendChild(dlBtn);
+      }
+
+      bubble.appendChild(audioBox);
+    }
+
+    const remainSec = Math.max(1, Math.ceil((msg.expiresAt - Date.now()) / 1000));
+    const meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    meta.innerHTML = `
+      <span>${formatHourMinute(msg.sentAt)}</span>
+      <span class="msg-timer-badge">
+        <span class="material-symbols-rounded" style="font-size:13px">timer</span>
+        <b data-countdown-id="${msg.id}">${remainSec}s</b>
+      </span>
+      ${isOut ? `<span class="material-symbols-rounded" style="font-size:15px">done_all</span>` : ''}
+    `;
+
+    bubble.appendChild(meta);
+    row.appendChild(bubble);
+    messagesStream.appendChild(row);
+    messagesStream.scrollTop = messagesStream.scrollHeight;
+  }
+
+  function renderActiveMessages() {
+    messagesStream.innerHTML = '';
+    if (!activePeer) return;
+    const list = conversations.get(activePeer) || [];
+    list.forEach((m) => appendMessageDom(m));
+  }
+
+  async function dispatchOutgoingPayload(kind, text, mediaBase64, mimeType) {
+    if (!activePeer || !onlineUsers.has(activePeer)) return;
+    const msgObj = {
+      id: window.crypto.randomUUID(),
+      sender: myNick,
+      kind,
+      text: text || '',
+      mediaBase64: mediaBase64 || null,
+      mimeType: mimeType || '',
+      allowDownload: Boolean(allowDownloadToggle.checked),
+      sentAt: Date.now(),
+      expiresAt: Date.now() + MESSAGE_TTL_MS,
+      read: true
+    };
+
+    storeAndRenderMessage(activePeer, msgObj);
+
+    try {
+      const encrypted = await encryptForPeer(activePeer, msgObj);
+      sendSignal({
+        type: 'encrypted_msg',
+        from: myNick,
+        to: activePeer,
+        payload: encrypted
+      });
+    } catch (_) {
+      showToast('Falha na criptografia com o destinatário.');
+    }
+  }
+
+  async function stripExifAndCompressImage(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const maxDim = 1280;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.84);
+        const base64 = dataUrl.split(',')[1];
+        resolve({ base64, mimeType: 'image/jpeg' });
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  nickModalInput.addEventListener('input', () => {
+    const pos = nickModalInput.selectionStart || 0;
+    const raw = nickModalInput.value;
+    const cleaned = sanitizeNickname(raw);
+    if (raw !== cleaned) {
+      const diff = raw.length - cleaned.length;
+      nickModalInput.value = cleaned;
+      const nextPos = Math.max(0, pos - diff);
+      nickModalInput.setSelectionRange(nextPos, nextPos);
+    }
+
+    if (cleaned.length < 3) {
+      nickFeedbackText.textContent = 'Digite pelo menos 3 caracteres';
+      nickFeedbackText.style.color = 'var(--m3-text-muted)';
+      enterSystemBtn.disabled = true;
+      return;
+    }
+
+    if (onlineUsers.has(cleaned)) {
+      nickFeedbackText.textContent = 'Este nome já está em uso agora';
+      nickFeedbackText.style.color = '#FF3B30';
+      enterSystemBtn.disabled = true;
+      return;
+    }
+
+    nickFeedbackText.textContent = 'Nome disponível e formatado';
+    nickFeedbackText.style.color = '#2AD17B';
+    enterSystemBtn.disabled = false;
+    sendSignal({ type: 'check_nick', nick: cleaned });
+  });
+
+  async function confirmEnterSystem() {
+    const cleaned = sanitizeNickname(nickModalInput.value);
+    if (cleaned.length < 3 || onlineUsers.has(cleaned)) return;
+    enterSystemBtn.disabled = true;
+    await initCryptoIdentity();
+
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      myNick = cleaned;
+      myNickBadge.textContent = '@' + myNick;
+      nickModal.classList.add('hidden');
+      sendSignal({
+        type: 'presence_announce',
+        nick: myNick,
+        pubKey: myPublicKeyJwk,
+        requestReply: true
+      });
+      renderUsersList();
+    } else {
+      sendSignal({
+        type: 'register',
+        nick: cleaned,
+        pubKey: myPublicKeyJwk
+      });
+    }
+  }
+
+  enterSystemBtn.addEventListener('click', confirmEnterSystem);
+  nickModalInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !enterSystemBtn.disabled) {
+      confirmEnterSystem();
+    }
+  });
+
+  userSearchInput.addEventListener('input', renderUsersList);
+
+  mobileBackBtn.addEventListener('click', () => {
+    activePeer = null;
+    activeChatView.classList.remove('visible');
+    emptyChatState.style.display = 'flex';
+    sidebarPane.classList.remove('hidden-mobile');
+    chatPane.classList.add('hidden-mobile');
+    renderUsersList();
+  });
+
+  sendMsgBtn.addEventListener('click', () => {
+    const txt = messageTextInput.value.trim();
+    if (!txt || !activePeer) return;
+    messageTextInput.value = '';
+    dispatchOutgoingPayload('text', txt, null, 'text/plain');
+  });
+
+  messageTextInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendMsgBtn.click();
+    }
+  });
+
+  messageTextInput.addEventListener('input', () => {
+    if (!activePeer) return;
+    const now = Date.now();
+    if (!typingTimeout || now - typingTimeout > 900) {
+      typingTimeout = now;
+      sendSignal({ type: 'typing', from: myNick, to: activePeer, mode: 'text' });
+    }
+  });
+
+  attachMediaBtn.addEventListener('click', () => {
+    if (!activePeer) return;
+    mediaFileInput.value = '';
+    mediaFileInput.click();
+  });
+
+  mediaFileInput.addEventListener('change', async () => {
+    const file = mediaFileInput.files && mediaFileInput.files[0];
+    if (!file || !activePeer) return;
+
+    if (file.type.startsWith('image/')) {
+      try {
+        const stripped = await stripExifAndCompressImage(file);
+        await dispatchOutgoingPayload('image', '', stripped.base64, stripped.mimeType);
+      } catch (_) {
+        showToast('Erro ao processar imagem.');
+      }
+    } else if (file.type.startsWith('video/')) {
+      if (file.size > 18 * 1024 * 1024) {
+        showToast('Vídeo máximo permitido: 18MB para envio instantâneo.');
+        return;
+      }
+      const buffer = await file.arrayBuffer();
+      const base64 = arrayBufferToBase64(buffer);
+      await dispatchOutgoingPayload('video', '', base64, file.type);
+    }
+  });
+
+  recordAudioBtn.addEventListener('click', async () => {
+    if (!activePeer) return;
+    if (!isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+        mediaRecorder.onstop = async () => {
+          stream.getTracks().forEach((t) => t.stop());
+          clearInterval(recordTimerInterval);
+          recordingIndicator.classList.remove('active');
+          recordAudioIcon.textContent = 'mic';
+          recordAudioBtn.classList.remove('danger');
+          if (audioChunks.length > 0 && activePeer) {
+            const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+            const buffer = await blob.arrayBuffer();
+            const base64 = arrayBufferToBase64(buffer);
+            await dispatchOutgoingPayload('audio', '', base64, blob.type);
+          }
+          isRecording = false;
+        };
+        mediaRecorder.start();
+        isRecording = true;
+        recordStartedAt = Date.now();
+        recordingIndicator.classList.add('active');
+        recordAudioIcon.textContent = 'stop_circle';
+        recordAudioBtn.classList.add('danger');
+        sendSignal({ type: 'typing', from: myNick, to: activePeer, mode: 'audio' });
+        recordTimerInterval = setInterval(() => {
+          const sec = Math.floor((Date.now() - recordStartedAt) / 1000);
+          recordingTimeLabel.textContent = 'Gravando 00:' + String(sec).padStart(2, '0');
+          if (sec >= 45 && isRecording) {
+            mediaRecorder.stop();
+          }
+        }, 250);
+      } catch (_) {
+        showToast('Permissão de microfone negada.');
+      }
+    } else {
+      mediaRecorder.stop();
+    }
+  });
+
+  setInterval(() => {
+    const now = Date.now();
+
+    conversations.forEach((msgs, peerNick) => {
+      for (let i = msgs.length - 1; i >= 0; i--) {
+        const m = msgs[i];
+        const remMs = m.expiresAt - now;
+        if (remMs <= 0) {
+          if (m.objectUrl) {
+            try { URL.revokeObjectURL(m.objectUrl); } catch (_) {}
+          }
+          const domRow = messagesStream.querySelector(`[data-msg-id="${m.id}"]`);
+          if (domRow) domRow.remove();
+          msgs.splice(i, 1);
+        } else if (activePeer === peerNick) {
+          const badge = messagesStream.querySelector(`[data-countdown-id="${m.id}"]`);
+          if (badge) {
+            badge.textContent = Math.ceil(remMs / 1000) + 's';
+          }
+        }
+      }
+    });
+
+    if (activePeer) {
+      const remContact = contactExpireAt - now;
+      if (remContact <= 0) {
+        const expiredPeer = activePeer;
+        destroyPeerConversation(expiredPeer);
+        showToast('Conversa com @' + expiredPeer + ' autodestruída (1 min).');
+      } else {
+        contactInactivityTimer.textContent = Math.ceil(remContact / 1000) + 's';
+      }
+    }
+  }, 200);
+
+  emergencyBanner.addEventListener('click', () => {
+    const now = Date.now();
+    if (now - lastHeaderTap < 340) {
+      triggerEmergencyGoogleNews();
+    }
+    lastHeaderTap = now;
+  });
+
+  panicBtn.addEventListener('click', () => {
+    triggerEmergencyGoogleNews();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      disconnectAndResetToPopup('Você saiu da janela ativa. Por segurança, tudo foi apagado.');
+    }
+  });
+
+  window.addEventListener('pagehide', () => {
+    disconnectAndResetToPopup();
+  });
+
+  window.addEventListener('blur', () => {
+    if (myNick) {
+      disconnectAndResetToPopup('A janela perdeu o foco. Sessão encerrada e limpa.');
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const now = Date.now();
+      if (now - lastEscPress < 400) {
+        triggerEmergencyGoogleNews();
+      }
+      lastEscPress = now;
+    }
+
+    const isPrintScreen = e.key === 'PrintScreen' || e.keyCode === 44;
+    const isDevTools = e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(e.key));
+    const isSaveOrSource = (e.ctrlKey || e.metaKey) && ['s', 'S', 'u', 'U', 'p', 'P'].includes(e.key);
+    const isMacShot = e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key);
+
+    if (isPrintScreen || isDevTools || isSaveOrSource || isMacShot) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (activePeer) {
+        sendSignal({ type: 'security_alert', from: myNick, to: activePeer });
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText('').catch(() => {});
+      }
+      disconnectAndResetToPopup('Captura de tela ou inspeção bloqueada! Sessão destruída.');
+    }
+  }, true);
+
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'PrintScreen' || e.keyCode === 44) {
+      if (activePeer) {
+        sendSignal({ type: 'security_alert', from: myNick, to: activePeer });
+      }
+      disconnectAndResetToPopup('Captura de tela detectada! Sessão destruída.');
+    }
+  }, true);
+
+  window.addEventListener('touchstart', (e) => {
+    if (e.touches && e.touches.length >= 3) {
+      if (activePeer) {
+        sendSignal({ type: 'security_alert', from: myNick, to: activePeer });
+      }
+      disconnectAndResetToPopup('Gesto de captura multi-toque bloqueado!');
+    }
+  }, { passive: true });
+
+  if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+    navigator.mediaDevices.getDisplayMedia = () => Promise.reject(new Error('Screen capture blocked'));
+  }
+
+  lockHistoryStack();
+  initTransport();
+  nickModalInput.focus();
+})();
+</script>
+</body>
+</html>
